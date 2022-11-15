@@ -2,7 +2,7 @@
 import fs from "fs-extra"
 import chalk from "chalk"
 import path from "path"
-import * as execa from "execa"
+import { execa, execaCommandSync } from "execa"
 
 const checkout = (to, from, cwd) =>
   execa('git', ['checkout', '-b', to, from], { stdio: 'inherit', cwd })
@@ -13,8 +13,10 @@ const gitAdd = (cwd) => execa('git', ['add', '.'], { stdio: 'inherit', cwd })
 
 const gitCommit = (cwd, msg) =>
   execa('git', ['commit', '-m', msg], { stdio: 'inherit', cwd })
+
 const gitPush = (cwd, branch = 'develop', origin = 'origin') =>
-  execa('git', ['push'], { stdio: 'inherit', cwd })
+  execa('git', ['push', origin, `HEAD:${branch}`], { stdio: 'inherit', cwd })
+
 
 const ensureSyncDir = (syncPathName, basePath) => {
 
@@ -94,7 +96,7 @@ async function run({
 
   if (Array.isArray(commitBeforeCommand)) {
     commitBeforeCommand.forEach((command) => {
-      execa.commandSync(command, { stdio: 'inherit', cwd: syncGitFilePath })
+      	execaCommandSync(command, { stdio: 'inherit', cwd: syncGitFilePath })
     })
   }
 
