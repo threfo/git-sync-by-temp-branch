@@ -1,6 +1,6 @@
 {
   "name": "git-sync-to-other-git",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "module",
   "description": "",
   "main": "index.js",
@@ -8,12 +8,20 @@
     "test": "node ./test/index.js"
   },
   "keywords": [],
-  "author": "Thomas Lau",
-  "license": "ISC",
   "dependencies": {
     "chalk": "^5.1.2",
     "execa": "^6.1.0",
     "fs-extra": "^10.1.0",
     "path": "^0.12.7"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/threfo/git-sync.git"
+  },
+  "author": "Thomas Lau",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/threfo/git-sync/issues"
+  },
+  "homepage": "https://github.com/threfo/git-sync#readme",
 }
