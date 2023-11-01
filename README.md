@@ -7,6 +7,8 @@
 
 import run from "git-sync";
 
+console.log('test update')
+
 run({
     originGit: 'git@github.com:threfo/git-sync.git',
     targetGit:'git@github.com:threfo/git-sync.git',
