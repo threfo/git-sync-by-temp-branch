@@ -9,8 +9,8 @@ const checkout = (to, from, cwd) =>
 const clone = (from, pathName, cwd) =>
   execa('git', ['clone', from, pathName], { stdio: 'inherit', cwd })
 
-const gitMerge = (cwd, branch) =>
-  execa('git', ['merge', branch], { stdio: 'inherit', cwd })
+const gitMerge = (cwd, branch, msg = 'sync merge') =>
+  execa('git', ['merge', '-m', msg, `origin/${branch}`], { stdio: 'inherit', cwd })
 
 const gitAdd = (cwd) => execa('git', ['add', '.'], { stdio: 'inherit', cwd })
 
