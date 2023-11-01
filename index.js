@@ -9,8 +9,8 @@ const checkout = (to, from, cwd) =>
 const clone = (from, pathName, cwd) =>
   execa('git', ['clone', from, pathName], { stdio: 'inherit', cwd })
 
-const gitMerge = (cwd, branch) =>
-  execa('git', ['merge', branch], { stdio: 'inherit', cwd })
+const gitMerge = (cwd, branch, msg = 'sync merge') =>
+  execa('git', ['merge', '-m', msg, `origin/${branch}`], { stdio: 'inherit', cwd })
 
 const gitAdd = (cwd) => execa('git', ['add', '.'], { stdio: 'inherit', cwd })
 
@@ -110,13 +110,14 @@ async function run({
   // 2 
   await gitMerge(originGitFilePath, fromBranch)
   // 2 end
-
+  
   // 3
   removeSyncGitOldFile(syncGitFilePath, passFileNames)
   copyFile(originGitFilePath, syncGitFilePath, passFileNames)
   await gitAdd(syncGitFilePath)
   await gitCommit(syncGitFilePath, commitMsg)
   await gitPush(syncGitFilePath, targetBranch)
+  await gitPush(originGitFilePath, tempBranch)
   // 3 end
 
   console.log(chalk.bold(chalk.green('同步代码成功！')))
