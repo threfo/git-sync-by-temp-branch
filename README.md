@@ -1,10 +1,10 @@
 # git-sync
 
-## 1、originGit 临时分支（tempBranch）全量同步 target仓库（targetGit）的某个分支（targetBranch）内容，commit 一次
+## 1、将 targetGit 的 targetBranch内容 全量覆盖到 originGit 的 tempBranch ，commit 一次
 
-## 2、originGit 临时分支（tempBranch）merge fromBranch
+## 2、将 originGit 的 fromBranch 内容 合并到 originGit 的 tempBranch
 
-## 3、originGit 临时分支（tempBranch）同步到 target仓库（targetGit）的某个分支（targetBranch）, 且 push tempBranch 本次操作
+## 3、originGit 的 tempBranch 全量覆盖到 targetGit 的 targetBranch, 且 push tempBranch 本次操作
 
 ```js
 
