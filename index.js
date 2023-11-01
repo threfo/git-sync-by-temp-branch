@@ -114,6 +114,11 @@ async function run({
   // 3
   removeSyncGitOldFile(syncGitFilePath, passFileNames)
   copyFile(originGitFilePath, syncGitFilePath, passFileNames)
+  if (Array.isArray(commitBeforeCommand)) {
+    commitBeforeCommand.forEach((command) => {
+      	execaCommandSync(command, { stdio: 'inherit', cwd: syncGitFilePath })
+    })
+  }
   await gitAdd(syncGitFilePath)
   await gitCommit(syncGitFilePath, commitMsg)
   await gitPush(syncGitFilePath, targetBranch)
