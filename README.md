@@ -8,7 +8,7 @@
 
 ```js
 
-console.log('main update')
+console.log('main update 1')
 import run from "git-sync";
 
 console.log('test update')
