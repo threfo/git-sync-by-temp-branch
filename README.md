@@ -11,7 +11,7 @@
 console.log('main update 1')
 import run from "git-sync";
 
-console.log('test update')
+console.log('main update 2')
 
 run({
     originGit: 'git@github.com:threfo/git-sync.git',
