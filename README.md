@@ -5,6 +5,7 @@
 
 ```js
 
+console.log('main update')
 import run from "git-sync";
 
 run({
