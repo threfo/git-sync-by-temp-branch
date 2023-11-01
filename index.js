@@ -9,6 +9,9 @@ const checkout = (to, from, cwd) =>
 const clone = (from, pathName, cwd) =>
   execa('git', ['clone', from, pathName], { stdio: 'inherit', cwd })
 
+const gitMerge = (cwd, branch) =>
+  execa('git', ['merge', branch], { stdio: 'inherit', cwd })
+
 const gitAdd = (cwd) => execa('git', ['add', '.'], { stdio: 'inherit', cwd })
 
 const gitCommit = (cwd, msg) =>
@@ -56,7 +59,7 @@ const removeSyncGitOldFile = (syncGitFilePath, passFileNames) => {
     })
 }
 
-const copyOriginFileToVivoGit = (originGitFilePath, syncGitFilePath, passFileNames) => {
+const copyFile = (originGitFilePath, syncGitFilePath, passFileNames) => {
   const dirNames = fs.readdirSync(originGitFilePath)
 
   dirNames
@@ -77,32 +80,44 @@ async function run({
   commitBeforeCommand,
   syncPathName = 'sync',
   basePath = '../',
+  tempBranch = '',
   commitMsg = '"chore: sync"'
 }) {
   console.log(chalk.bold(chalk.green('同步代码开始...')))
 
+  // 1
   const syncPathExists = ensureSyncDir(syncPathName, basePath)
 
   const originGitFilePath = `${syncPathExists}/origin`
   const syncGitFilePath = `${syncPathExists}/sync`
   const passFileNames = ['.git', '.github', '.husky']
 
-  await checkoutOrigin(syncPathExists, originGitFilePath, originGit, fromBranch)
+  await checkoutOrigin(syncPathExists, originGitFilePath, originGit, tempBranch)
   await checkoutSync(syncPathExists, syncGitFilePath, targetGit, targetBranch)
 
-  removeSyncGitOldFile(syncGitFilePath, passFileNames)
-
-  copyOriginFileToVivoGit(originGitFilePath, syncGitFilePath, passFileNames)
-
+  // 1
+  removeSyncGitOldFile(originGitFilePath, passFileNames)
+  copyFile(syncGitFilePath, originGitFilePath, passFileNames)
   if (Array.isArray(commitBeforeCommand)) {
     commitBeforeCommand.forEach((command) => {
       	execaCommandSync(command, { stdio: 'inherit', cwd: syncGitFilePath })
     })
   }
+  await gitAdd(originGitFilePath)
+  await gitCommit(originGitFilePath, commitMsg)
+  // 1 end
 
+  // 2 
+  await gitMerge(originGitFilePath, fromBranch)
+  // 2 end
+
+  // 3
+  removeSyncGitOldFile(syncGitFilePath, passFileNames)
+  copyFile(originGitFilePath, syncGitFilePath, passFileNames)
   await gitAdd(syncGitFilePath)
   await gitCommit(syncGitFilePath, commitMsg)
   await gitPush(syncGitFilePath, targetBranch)
+  // 3 end
 
   console.log(chalk.bold(chalk.green('同步代码成功！')))
 }
