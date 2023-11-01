@@ -19,5 +19,6 @@ run({
     fromBranch: 'test',
     targetBranch: 'main',
     syncPathName: 'sync',
+    tempBranch: 'temp'
 })
 ```
