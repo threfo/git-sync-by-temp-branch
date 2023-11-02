@@ -9,7 +9,7 @@ const checkout = (to, from, cwd) =>
 const clone = (from, pathName, cwd) =>
   execa('git', ['clone', from, pathName], { stdio: 'inherit', cwd })
 
-const gitMerge = (cwd, branch, msg = 'sync merge') =>
+const gitMerge = (cwd, branch, msg = '"chore: sync merge"') =>
   execa('git', ['merge', '-m', msg, `origin/${branch}`], { stdio: 'inherit', cwd })
 
 const gitAdd = (cwd) => execa('git', ['add', '.'], { stdio: 'inherit', cwd })
@@ -81,7 +81,8 @@ async function run({
   syncPathName = 'sync',
   basePath = '../',
   tempBranch = '',
-  commitMsg = '"chore: sync"'
+  commitMsg = '"chore: sync"',
+  mergeMsg = '"chore: merge"'
 }) {
   console.log(chalk.bold(chalk.green('同步代码开始...')))
 
@@ -108,7 +109,7 @@ async function run({
   // 1 end
 
   // 2 
-  await gitMerge(originGitFilePath, fromBranch)
+  await gitMerge(originGitFilePath, fromBranch, mergeMsg)
   // 2 end
   
   // 3
