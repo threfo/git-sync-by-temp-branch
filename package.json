@@ -1,6 +1,6 @@
 {
   "name": "git-sync-to-other-git-by-temp",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "type": "module",
   "description": "",
   "main": "index.js",
@@ -12,6 +12,7 @@
     "chalk": "^5.1.2",
     "execa": "^6.1.0",
     "fs-extra": "^10.1.0",
+    "is-git-dirty": "^2.0.2",
     "path": "^0.12.7"
   },
   "repository": {

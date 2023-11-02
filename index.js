@@ -3,6 +3,7 @@ import fs from "fs-extra"
 import chalk from "chalk"
 import path from "path"
 import { execa, execaCommandSync } from "execa"
+import isGitDirty from 'is-git-dirty';
 
 const checkout = (to, from, cwd) =>
   execa('git', ['checkout', '-b', to, from], { stdio: 'inherit', cwd })
@@ -104,11 +105,17 @@ async function run({
       	execaCommandSync(command, { stdio: 'inherit', cwd: syncGitFilePath })
     })
   }
-  await gitAdd(originGitFilePath)
-  await gitCommit(originGitFilePath, commitMsg)
+  if (isGitDirty(originGitFilePath)) {
+    console.log(chalk.bold(chalk.green('tempBranch 同步完 targetBranch commit 之前')))
+    await gitAdd(originGitFilePath)
+    await gitCommit(originGitFilePath, commitMsg)
+  } else {
+    console.log(chalk.bold(chalk.green('targetBranch 和 tempBranch 一致')))
+  }
   // 1 end
 
   // 2 
+  console.log(chalk.bold(chalk.green('merge 之前')))
   await gitMerge(originGitFilePath, fromBranch, mergeMsg)
   // 2 end
   
