@@ -8,14 +8,11 @@
 
 ```js
 
-console.log('main update 1')
 import run from "git-sync";
 
-console.log('main update 2')
-
 run({
-    originGit: 'git@github.com:threfo/git-sync.git',
-    targetGit:'git@github.com:threfo/git-sync.git',
+    originGit: 'git@github.com:threfo/git-sync-by-temp-branch.git',
+    targetGit:'git@github.com:threfo/git-sync-by-temp-branch.git',
     fromBranch: 'test',
     targetBranch: 'main',
     syncPathName: 'sync',
