@@ -136,4 +136,37 @@ async function run({
   console.log(chalk.bold(chalk.green('同步代码成功！')))
 }
 
+async function asyncAfterMergeConflict ({
+  targetBranch,
+  commitBeforeCommand,
+  syncPathName = 'sync',
+  basePath = '../',
+  tempBranch = '',
+  commitMsg = '"chore: sync"',
+}) {
+  console.log(chalk.bold(chalk.green('同步代码开始...')))
+
+  const syncPathExists = ensureSyncDir(syncPathName, basePath)
+
+  const originGitFilePath = `${syncPathExists}/origin`
+  const syncGitFilePath = `${syncPathExists}/sync`
+  const passFileNames = ['.git', '.github', '.husky']
+
+  removeSyncGitOldFile(syncGitFilePath, passFileNames)
+  copyFile(originGitFilePath, syncGitFilePath, passFileNames)
+  if (Array.isArray(commitBeforeCommand)) {
+    commitBeforeCommand.forEach((command) => {
+      	execaCommandSync(command, { stdio: 'inherit', cwd: syncGitFilePath })
+    })
+  }
+  await gitAdd(syncGitFilePath)
+  await gitCommit(syncGitFilePath, commitMsg)
+  await gitPush(syncGitFilePath, targetBranch)
+  await gitPush(originGitFilePath, tempBranch)
+
+  console.log(chalk.bold(chalk.green('同步代码成功！')))
+}
+
+export { asyncAfterMergeConflict }
+
 export default run
