@@ -137,11 +137,9 @@ async function run({
 }
 
 async function asyncAfterMergeConflict ({
-  targetBranch,
   commitBeforeCommand,
   syncPathName = 'sync',
   basePath = '../',
-  tempBranch = '',
   commitMsg = '"chore: sync"',
 }) {
   console.log(chalk.bold(chalk.green('同步代码开始...')))
@@ -161,8 +159,8 @@ async function asyncAfterMergeConflict ({
   }
   await gitAdd(syncGitFilePath)
   await gitCommit(syncGitFilePath, commitMsg)
-  await gitPush(syncGitFilePath, targetBranch)
-  await gitPush(originGitFilePath, tempBranch)
+  await gitPush(syncGitFilePath)
+  await gitPush(originGitFilePath)
 
   console.log(chalk.bold(chalk.green('同步代码成功！')))
 }
