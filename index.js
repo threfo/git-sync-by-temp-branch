@@ -1,4 +1,5 @@
 
+import path from "path"
 import chalk from "chalk"
 import { execaCommandSync } from "execa"
 import isGitDirty from 'is-git-dirty';
@@ -12,6 +13,7 @@ import {
   gitCommit, 
   gitPush,
   gitMerge,
+  getParamsByPropsOrArgs,
 } from './utils.js'
 
 async function run({
@@ -77,17 +79,20 @@ async function run({
   console.log(chalk.bold(chalk.green('同步代码成功！')))
 }
 
-async function asyncAfterMergeConflict (params) {
+async function asyncAfterMergeConflict (props) {
   const {
+    targetBranch,
+    tempBranch,
     commitBeforeCommand,
     syncPathName = 'sync',
     basePath = '../',
     commitMsg = '"chore: sync"',
-  } = params || {}
+  } = getParamsByPropsOrArgs(props) || {}
 
   console.log(chalk.bold(chalk.green('同步代码开始...')))
+  const currentPath = path.resolve(basePath)
 
-  const syncPathExists = ensureSyncDir(syncPathName, basePath)
+  const syncPathExists = `${currentPath}/${syncPathName}`
 
   const originGitFilePath = `${syncPathExists}/origin`
   const syncGitFilePath = `${syncPathExists}/sync`
@@ -102,8 +107,8 @@ async function asyncAfterMergeConflict (params) {
   }
   await gitAdd(syncGitFilePath)
   await gitCommit(syncGitFilePath, commitMsg)
-  await gitPush(syncGitFilePath)
-  await gitPush(originGitFilePath)
+  await gitPush(syncGitFilePath, targetBranch)
+  await gitPush(originGitFilePath, tempBranch)
 
   console.log(chalk.bold(chalk.green('同步代码成功！')))
 }
