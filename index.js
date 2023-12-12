@@ -12,7 +12,7 @@ import {
   gitCommit, 
   gitPush,
   gitMerge,
-} from 'utils.js'
+} from './utils.js'
 
 async function run({
   originGit,
@@ -77,12 +77,14 @@ async function run({
   console.log(chalk.bold(chalk.green('同步代码成功！')))
 }
 
-async function asyncAfterMergeConflict ({
-  commitBeforeCommand,
-  syncPathName = 'sync',
-  basePath = '../',
-  commitMsg = '"chore: sync"',
-}) {
+async function asyncAfterMergeConflict (params) {
+  const {
+    commitBeforeCommand,
+    syncPathName = 'sync',
+    basePath = '../',
+    commitMsg = '"chore: sync"',
+  } = params || {}
+
   console.log(chalk.bold(chalk.green('同步代码开始...')))
 
   const syncPathExists = ensureSyncDir(syncPathName, basePath)

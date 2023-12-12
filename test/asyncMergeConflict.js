@@ -11,8 +11,8 @@ import {
   gitMerge,
   gitCommit,
   gitAdd,
-  gitPush,
 } from '../utils.js'
+import { asyncAfterMergeConflict } from '../index.js'
  
 async function run({
   originGit,
@@ -57,30 +57,6 @@ async function run({
   console.log(chalk.bold(chalk.green('同步代码成功！')))
 }
 
-async function asyncAfterMergeConflict ({
-  commitBeforeCommand,
-  syncPathName = 'sync',
-  basePath = '../',
-  commitMsg = '"chore: sync"',
-}) {
-  console.log(chalk.bold(chalk.green('同步代码开始...')))  
-  const syncPathExists = ensureSyncDir(syncPathName, basePath)  
-  const originGitFilePath = `${syncPathExists}/origin`
-  const syncGitFilePath = `${syncPathExists}/sync`
-  const passFileNames = ['.git', '.github', '.husky']  
-  removeSyncGitOldFile(syncGitFilePath, passFileNames)
-  copyFile(originGitFilePath, syncGitFilePath, passFileNames)
-  if (Array.isArray(commitBeforeCommand)) {
-      commitBeforeCommand.forEach((command) => {
-          execaCommandSync(command, { stdio: 'inherit', cwd: syncGitFilePath })
-      })
-  }
-  await gitAdd(syncGitFilePath)
-  await gitCommit(syncGitFilePath, commitMsg)
-  await gitPush(syncGitFilePath)
-  await gitPush(originGitFilePath)  
-  console.log(chalk.bold(chalk.green('同步代码成功！')))
-}
 
 run({
   originGit: 'git@github.com:threfo/git-sync-by-temp-branch.git',
