@@ -1,85 +1,129 @@
-
-import path from "path"
-import chalk from "chalk"
-import { execaCommandSync } from "execa"
-import isGitDirty from 'is-git-dirty';
-import { 
-  ensureSyncDir, 
-  checkoutOrigin, 
-  checkoutSync, 
+import path from 'path'
+import chalk from 'chalk'
+import { execaCommandSync } from 'execa'
+import isGitDirty from 'is-git-dirty'
+import {
+  ensureSyncDir,
+  checkoutOrigin,
+  checkoutSync,
   removeSyncGitOldFile,
-  copyFile, 
-  gitAdd, 
-  gitCommit, 
+  copyFile,
+  gitAdd,
+  gitCommit,
   gitPush,
   gitMerge,
   getParamsByPropsOrArgs,
 } from './utils.js'
 
-async function run({
-  originGit,
-  targetGit,
-  fromBranch,
-  targetBranch,
+const passFileNames = ['.git', '.github', '.husky']
+
+async function checkOutFileToTempAndCopySyncFileToTemp({
+  originGit, // 源仓库地址
+  targetGit, // 目标仓库地址
+  targetBranch, // 目标仓库的分支
   commitBeforeCommand,
-  syncPathName = 'sync',
-  basePath = '../',
-  tempBranch = '',
-  commitMsg = '"chore: sync"',
-  mergeMsg = '"chore: merge"'
+  tempBranch = '', // 临时分支
+  commitMsg = '"chore: sync"', // commit message
+  syncPathExists,
+  originGitFilePath,
+  syncGitFilePath,
 }) {
-  console.log(chalk.bold(chalk.green('同步代码开始...')))
-
-  // 1
-  const syncPathExists = ensureSyncDir(syncPathName, basePath)
-
-  const originGitFilePath = `${syncPathExists}/origin`
-  const syncGitFilePath = `${syncPathExists}/sync`
-  const passFileNames = ['.git', '.github', '.husky']
-
   await checkoutOrigin(syncPathExists, originGitFilePath, originGit, tempBranch)
   await checkoutSync(syncPathExists, syncGitFilePath, targetGit, targetBranch)
 
   // 1
+  console.log(chalk.bold(chalk.green(`删除${originGitFilePath}的文件`)))
   removeSyncGitOldFile(originGitFilePath, passFileNames)
+  console.log(chalk.bold(chalk.green(`从${syncGitFilePath}复制文件到${originGitFilePath}`)))
   copyFile(syncGitFilePath, originGitFilePath, passFileNames)
   if (Array.isArray(commitBeforeCommand)) {
     commitBeforeCommand.forEach((command) => {
-      	execaCommandSync(command, { stdio: 'inherit', cwd: syncGitFilePath })
+      execaCommandSync(command, { stdio: 'inherit', cwd: syncGitFilePath })
     })
   }
   if (isGitDirty(originGitFilePath)) {
-    console.log(chalk.bold(chalk.green('tempBranch 同步完 targetBranch commit 之前')))
+    console.log(chalk.bold(chalk.green(`${tempBranch} 代码已同步到 ${targetBranch}`)))
     await gitAdd(originGitFilePath)
+
+    console.log(chalk.bold(chalk.green(`${originGitFilePath} commit ${commitMsg}`)))
     await gitCommit(originGitFilePath, commitMsg)
   } else {
-    console.log(chalk.bold(chalk.green('targetBranch 和 tempBranch 一致')))
+    console.log(chalk.bold(chalk.green(`${targetBranch} 和 ${tempBranch} 一致`)))
   }
-  // 1 end
+}
 
-  // 2 
-  console.log(chalk.bold(chalk.green('merge 之前')))
-  await gitMerge(originGitFilePath, fromBranch, mergeMsg)
-  // 2 end
-  
-  // 3
+async function mergeAfter({
+  targetBranch, // 目标仓库的分支
+  commitBeforeCommand,
+  tempBranch = '', // 临时分支
+  commitMsg = '"chore: sync"', // commit message
+  originGitFilePath,
+  syncGitFilePath,
+}) {
+  console.log(chalk.bold(chalk.green(`删除${syncGitFilePath}的文件`)))
   removeSyncGitOldFile(syncGitFilePath, passFileNames)
+  console.log(chalk.bold(chalk.green(`从${originGitFilePath}复制文件到${syncGitFilePath}`)))
   copyFile(originGitFilePath, syncGitFilePath, passFileNames)
   if (Array.isArray(commitBeforeCommand)) {
     commitBeforeCommand.forEach((command) => {
-      	execaCommandSync(command, { stdio: 'inherit', cwd: syncGitFilePath })
+      execaCommandSync(command, { stdio: 'inherit', cwd: syncGitFilePath })
     })
   }
   await gitAdd(syncGitFilePath)
+  console.log(chalk.bold(chalk.green(`${syncGitFilePath} commit ${commitMsg}`)))
   await gitCommit(syncGitFilePath, commitMsg)
+  console.log(chalk.bold(chalk.green(`push文件到${syncGitFilePath} 的 ${targetBranch}分支`)))
   await gitPush(syncGitFilePath, targetBranch)
+  console.log(chalk.bold(chalk.green(`push文件到${originGitFilePath} 的 ${tempBranch}分支`)))
   await gitPush(originGitFilePath, tempBranch)
-  // 3 end
 
   console.log(chalk.bold(chalk.green('同步代码成功！')))
 }
 
-async function asyncAfterMergeConflict (props) {
+async function run({
+  originGit, // 源仓库地址
+  targetGit, // 目标仓库地址
+  fromBranch, // 源仓库的分支
+  targetBranch, // 目标仓库的分支
+  commitBeforeCommand,
+  syncPathName = 'sync', // 同步代码的文件夹名称
+  basePath = '../', // 同步代码的文件夹路径
+  tempBranch = '', // 临时分支
+  commitMsg = '"chore: sync"', // commit message
+  mergeMsg = '"chore: merge"', // merge message
+}) {
+  console.log(chalk.bold(chalk.green('同步代码开始...')))
+
+  const syncPathExists = ensureSyncDir(syncPathName, basePath)
+  const originGitFilePath = `${syncPathExists}/origin`
+  const syncGitFilePath = `${syncPathExists}/sync`
+
+  await checkOutFileToTempAndCopySyncFileToTemp({
+    originGit,
+    targetGit,
+    targetBranch,
+    commitBeforeCommand,
+    tempBranch,
+    commitMsg,
+    syncPathExists,
+    originGitFilePath,
+    syncGitFilePath,
+  })
+
+  console.log(chalk.bold(chalk.green(`${originGitFilePath} merge到 ${fromBranch} ${mergeMsg}`)))
+  await gitMerge(originGitFilePath, fromBranch, mergeMsg)
+
+  await mergeAfter({
+    targetBranch, // 目标仓库的分支
+    commitBeforeCommand,
+    tempBranch, // 临时分支
+    commitMsg, // commit message
+    originGitFilePath,
+    syncGitFilePath,
+  })
+}
+
+async function asyncAfterMergeConflict(props) {
   const {
     targetBranch,
     tempBranch,
@@ -93,24 +137,17 @@ async function asyncAfterMergeConflict (props) {
   const currentPath = path.resolve(basePath)
 
   const syncPathExists = `${currentPath}/${syncPathName}`
-
   const originGitFilePath = `${syncPathExists}/origin`
   const syncGitFilePath = `${syncPathExists}/sync`
-  const passFileNames = ['.git', '.github', '.husky']
 
-  removeSyncGitOldFile(syncGitFilePath, passFileNames)
-  copyFile(originGitFilePath, syncGitFilePath, passFileNames)
-  if (Array.isArray(commitBeforeCommand)) {
-    commitBeforeCommand.forEach((command) => {
-      	execaCommandSync(command, { stdio: 'inherit', cwd: syncGitFilePath })
-    })
-  }
-  await gitAdd(syncGitFilePath)
-  await gitCommit(syncGitFilePath, commitMsg)
-  await gitPush(syncGitFilePath, targetBranch)
-  await gitPush(originGitFilePath, tempBranch)
-
-  console.log(chalk.bold(chalk.green('同步代码成功！')))
+  await mergeAfter({
+    targetBranch, // 目标仓库的分支
+    commitBeforeCommand,
+    tempBranch, // 临时分支
+    commitMsg, // commit message
+    originGitFilePath,
+    syncGitFilePath,
+  })
 }
 
 export { asyncAfterMergeConflict }
