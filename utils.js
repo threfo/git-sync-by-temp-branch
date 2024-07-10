@@ -49,9 +49,7 @@ const gitLogToJson = (s) => {
     result.push(commitObj)
   })
 
-  return result
-    .filter((item) => item.message !== 'Initial commit' && item.message !== '')
-    .sort((a, b) => b.date - a.date)
+  return result.filter((item) => item.message !== 'Initial commit' && item.message !== '')
 }
 
 export const getGitLog = async (cwd) => {
