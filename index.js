@@ -22,7 +22,7 @@ async function checkOutFileToTempAndCopySyncFileToTemp({
   targetBranch, // 目标仓库的分支
   commitBeforeCommand,
   tempBranch = '', // 临时分支
-  commitMsg = '"chore: sync"', // commit message
+  commitMsg = 'chore: sync', // commit message
   originGitFilePath,
   syncGitFilePath,
 }) {
@@ -51,7 +51,7 @@ async function mergeAfter({
   targetBranch, // 目标仓库的分支
   commitBeforeCommand,
   tempBranch = '', // 临时分支
-  commitMsg = '"chore: sync"', // commit message
+  commitMsg = 'chore: sync', // commit message
   originGitFilePath,
   syncGitFilePath,
 }) {
@@ -135,7 +135,7 @@ async function asyncAfterMergeConflict(props) {
     commitBeforeCommand,
     syncPathName = 'sync',
     basePath = '../',
-    commitMsg = '"chore: sync"',
+    commitMsg = 'chore: sync',
   } = getParamsByPropsOrArgs(props) || {}
 
   console.log(chalk.bold(chalk.green('同步代码开始...')))
