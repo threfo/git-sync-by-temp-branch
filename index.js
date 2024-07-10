@@ -101,7 +101,7 @@ async function run({
     syncGitFilePath,
     `${commitMsg} ${fromBranch} to ${targetBranch}`,
   )
-  console.log(chalk.bold(chalk.green(`${newCommitMsg}`)))
+  console.log(chalk.bold(chalk.red(`${newCommitMsg}`)))
 
   await checkOutFileToTempAndCopySyncFileToTemp({
     originGit,
