@@ -1,5 +1,6 @@
 import path from 'path'
 import fs from 'fs-extra'
+import chalk from 'chalk'
 import { execa } from 'execa'
 
 export const checkout = (to, from, cwd) =>
@@ -19,10 +20,83 @@ export const gitCommit = (cwd, msg) =>
 export const gitPush = (cwd, branch = 'develop', origin = 'origin') =>
   execa('git', ['push', origin, `HEAD:${branch}`], { stdio: 'inherit', cwd })
 
+const gitLogToJson = (s) => {
+  // console.log('gitLogToJson', s)
+  const commits = s.split('commit ') // 分割每个commit
+  const result = []
+
+  commits.forEach((commit) => {
+    // console.log(i, 'commit', commit)
+    const lines = commit.split('\n')
+
+    const [commitId, ...otherLines] = lines
+    const commitObj = { commitId }
+
+    otherLines.forEach((line) => {
+      // console.log(`${i}-${j}`, 'line', line)
+      if (line.startsWith('Author: ')) {
+        commitObj.author = line.replace('Author: ', '').trim()
+      } else if (line.startsWith('Date: ')) {
+        commitObj.date = new Date(line.replace('Date: ', '').trim())
+      }
+    })
+
+    const dateIndex = otherLines.findIndex((line) => line.startsWith('Date: '))
+    const messageLines = otherLines.slice(dateIndex + 1)
+
+    commitObj.message = messageLines.join('\n').trim()
+    // console.log(i, 'commitObj', JSON.stringify(commitObj))
+    result.push(commitObj)
+  })
+
+  return result
+    .filter((item) => item.message !== 'Initial commit' && item.message !== '')
+    .sort((a, b) => b.date - a.date)
+}
+
+export const getGitLog = async (cwd) => {
+  const { stdout } = await execa({
+    // stdout: ['pipe', 'inherit'],
+    cwd,
+  })`git log -1000`
+
+  const list = gitLogToJson(stdout)
+
+  // console.log(chalk.bold(chalk.yellow('stdout', JSON.stringify(list))))
+
+  return list
+}
+
+const findLastSyncDate = (logs, matchMsg) => {
+  const log = logs.find(({ message }) => message.includes(matchMsg))
+  const { date } = log || {}
+  return date
+}
+
+export const getCommitMsg = async (originGitFilePath, syncGitFilePath, matchMsg) => {
+  const originGitLogs = await getGitLog(originGitFilePath)
+  const syncGitLogs = await getGitLog(syncGitFilePath)
+
+  const lastSyncDate = findLastSyncDate(syncGitLogs, matchMsg)
+
+  let msg = ''
+  if (lastSyncDate) {
+    msg = originGitLogs
+      .filter(({ date }) => date.getTime() > lastSyncDate.getTime())
+      .map(({ message }) => message)
+      .join('\n')
+  }
+
+  if (msg) {
+    return [matchMsg, '\n', msg].join('\n')
+  }
+  return matchMsg
+}
+
 export const checkoutSync = async (syncPathExists, syncGitFilePath, gitPath, branchName) => {
-  console.log(`clone 目标 ${gitPath} 到 ${syncPathExists}`)
+  console.log(chalk.bold(chalk.yellow(`clone 目标 ${gitPath} 到 ${syncPathExists}`)))
   await clone(gitPath, 'sync', syncPathExists)
-  console.log(`checkout ${branchName} 成 ${syncGitFilePath}`)
+  console.log(chalk.bold(chalk.yellow(`checkout ${branchName} 到 ${syncGitFilePath}`)))
   await checkout('sync', `origin/${branchName}`, syncGitFilePath)
 }
 
@@ -42,9 +116,9 @@ export const ensureSyncDir = (syncPathName, basePath) => {
 }
 
 export const checkoutOrigin = async (syncPathExists, originGitFilePath, gitPath, branchName) => {
-  console.log(`clone 源 ${gitPath} 到 ${syncPathExists}`)
+  console.log(chalk.bold(chalk.yellow(`clone 源 ${gitPath} 到 ${syncPathExists}`)))
   await clone(gitPath, 'origin', syncPathExists)
-  console.log(`checkout ${branchName} 成 ${originGitFilePath}`)
+  console.log(chalk.bold(chalk.yellow(`checkout ${branchName} 到 ${originGitFilePath}`)))
   await checkout('wait_sync', `origin/${branchName}`, originGitFilePath)
 }
 
