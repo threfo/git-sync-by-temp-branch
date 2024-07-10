@@ -83,9 +83,21 @@ export const getCommitMsg = async (originGitFilePath, syncGitFilePath, matchMsg)
   let msg = ''
   if (lastSyncDate) {
     msg = originGitLogs
-      .filter(({ date }) => date.getTime() > lastSyncDate.getTime())
+      .filter(({ date, message }) => {
+        console.log(date, ': ', message)
+        console.log(
+          'date',
+          date,
+          'lastSyncDate',
+          lastSyncDate,
+          'date.getTime() > lastSyncDate.getTime()',
+          date.getTime() > lastSyncDate.getTime(),
+        )
+        return date.getTime() > lastSyncDate.getTime()
+      })
       .map(({ message }) => message)
       .join('\n')
+    console.log(chalk.bgRed('msg', msg))
   }
 
   if (msg) {
