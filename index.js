@@ -13,24 +13,19 @@ import {
   gitPush,
   gitMerge,
   getParamsByPropsOrArgs,
+  getCommitMsg,
 } from './utils.js'
 
 const passFileNames = ['.git', '.github', '.husky']
 
 async function checkOutFileToTempAndCopySyncFileToTemp({
-  originGit, // 源仓库地址
-  targetGit, // 目标仓库地址
   targetBranch, // 目标仓库的分支
   commitBeforeCommand,
   tempBranch = '', // 临时分支
   commitMsg = '"chore: sync"', // commit message
-  syncPathExists,
   originGitFilePath,
   syncGitFilePath,
 }) {
-  await checkoutOrigin(syncPathExists, originGitFilePath, originGit, tempBranch)
-  await checkoutSync(syncPathExists, syncGitFilePath, targetGit, targetBranch)
-
   // 1
   console.log(chalk.bold(chalk.green(`删除${originGitFilePath}的文件`)))
   removeSyncGitOldFile(originGitFilePath, passFileNames)
@@ -89,8 +84,8 @@ async function run({
   syncPathName = 'sync', // 同步代码的文件夹名称
   basePath = '../', // 同步代码的文件夹路径
   tempBranch = '', // 临时分支
-  commitMsg = '"chore: sync"', // commit message
-  mergeMsg = '"chore: merge"', // merge message
+  commitMsg = 'chore: sync', // commit message
+  mergeMsg = 'chore: merge', // merge message
 }) {
   console.log(chalk.bold(chalk.green('同步代码开始...')))
 
@@ -98,26 +93,36 @@ async function run({
   const originGitFilePath = `${syncPathExists}/origin`
   const syncGitFilePath = `${syncPathExists}/sync`
 
+  await checkoutOrigin(syncPathExists, originGitFilePath, originGit, tempBranch)
+  await checkoutSync(syncPathExists, syncGitFilePath, targetGit, targetBranch)
+
+  const newCommitMsg = await getCommitMsg(
+    originGitFilePath,
+    syncGitFilePath,
+    `${commitMsg} ${fromBranch} to ${targetBranch}`,
+  )
+  console.log(chalk.bold(chalk.green(`${newCommitMsg}`)))
+
   await checkOutFileToTempAndCopySyncFileToTemp({
     originGit,
     targetGit,
     targetBranch,
     commitBeforeCommand,
     tempBranch,
-    commitMsg,
+    commitMsg: newCommitMsg,
     syncPathExists,
     originGitFilePath,
     syncGitFilePath,
   })
 
   console.log(chalk.bold(chalk.green(`${originGitFilePath} merge到 ${fromBranch} ${mergeMsg}`)))
-  await gitMerge(originGitFilePath, fromBranch, mergeMsg)
+  await gitMerge(originGitFilePath, fromBranch, `${mergeMsg} ${fromBranch} to ${targetBranch}`)
 
   await mergeAfter({
     targetBranch, // 目标仓库的分支
     commitBeforeCommand,
     tempBranch, // 临时分支
-    commitMsg, // commit message
+    commitMsg: newCommitMsg, // commit message
     originGitFilePath,
     syncGitFilePath,
   })
