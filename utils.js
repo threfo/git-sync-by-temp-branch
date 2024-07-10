@@ -68,6 +68,7 @@ export const getGitLog = async (cwd) => {
 const findLastSyncDate = (logs, matchMsg) => {
   const log = logs.find(({ message }) => message.includes(matchMsg))
   const { date } = log || {}
+  console.log(chalk.bgGreen('findLastSyncDate date', date))
   return date
 }
 
@@ -75,6 +76,8 @@ export const getCommitMsg = async (originGitFilePath, syncGitFilePath, matchMsg)
   const originGitLogs = await getGitLog(originGitFilePath)
   const syncGitLogs = await getGitLog(syncGitFilePath)
 
+  console.log(chalk.bgGreen('originGitLogs', JSON.stringify(originGitLogs)))
+  console.log(chalk.bgYellow('syncGitLogs', JSON.stringify(syncGitLogs)))
   const lastSyncDate = findLastSyncDate(syncGitLogs, matchMsg)
 
   let msg = ''
