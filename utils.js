@@ -130,7 +130,7 @@ export const removeSyncGitOldFile = (syncGitFilePath, passFileNames) => {
     .filter((path) => !passFileNames.includes(path))
     .forEach((path) => {
       const removePath = `${syncGitFilePath}/${path}`
-      console.log('remove', removePath)
+      // console.log('remove', removePath)
       fs.removeSync(removePath)
     })
 }
@@ -143,7 +143,7 @@ export const copyFile = (originGitFilePath, syncGitFilePath, passFileNames) => {
     .forEach((path) => {
       const fromPath = `${originGitFilePath}/${path}`
       const toPath = `${syncGitFilePath}/${path}`
-      console.log('copy', fromPath, 'to', toPath)
+      // console.log('copy', fromPath, 'to', toPath)
       fs.copySync(fromPath, toPath)
     })
 }
