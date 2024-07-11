@@ -53,8 +53,13 @@ async function mergeAfter({
   commitMsg = 'chore: sync', // commit message
   originGitFilePath,
   syncGitFilePath,
+  fromBranch,
 }) {
-  const newCommitMsg = await getCommitMsg(originGitFilePath, syncGitFilePath, commitMsg)
+  const newCommitMsg = await getCommitMsg(
+    originGitFilePath,
+    syncGitFilePath,
+    `${commitMsg} ${fromBranch} to ${targetBranch}`,
+  )
   console.log(chalk.bold(chalk.red(`${newCommitMsg}`)))
 
   console.log(chalk.bold(chalk.green(`删除${syncGitFilePath}的文件`)))
@@ -116,9 +121,10 @@ async function run({
     targetBranch, // 目标仓库的分支
     commitBeforeCommand,
     tempBranch, // 临时分支
-    commitMsg: `${commitMsg} ${fromBranch} to ${targetBranch}`, // commit message
+    commitMsg, // commit message
     originGitFilePath,
     syncGitFilePath,
+    fromBranch,
   })
 }
 
@@ -126,6 +132,7 @@ async function asyncAfterMergeConflict(props) {
   const {
     targetBranch,
     tempBranch,
+    fromBranch,
     commitBeforeCommand,
     syncPathName = 'sync',
     basePath = '../',
@@ -146,6 +153,7 @@ async function asyncAfterMergeConflict(props) {
     commitMsg, // commit message
     originGitFilePath,
     syncGitFilePath,
+    fromBranch,
   })
 }
 
