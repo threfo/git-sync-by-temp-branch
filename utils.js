@@ -136,9 +136,9 @@ export const removeSyncGitOldFile = (syncGitFilePath, passFileNames) => {
   const dirNames = fs.readdirSync(syncGitFilePath)
 
   dirNames
-    .filter((path) => !passFileNames.includes(path))
-    .forEach((path) => {
-      const removePath = path.join(syncGitFilePath, path)
+    .filter((filePath) => !passFileNames.includes(filePath))
+    .forEach((filePath) => {
+      const removePath = path.join(syncGitFilePath, filePath)
       // console.log('remove', removePath)
       fs.removeSync(removePath)
     })
@@ -148,10 +148,10 @@ export const copyFile = (originGitFilePath, syncGitFilePath, passFileNames) => {
   const dirNames = fs.readdirSync(originGitFilePath)
 
   dirNames
-    .filter((path) => !passFileNames.includes(path))
-    .forEach((path) => {
-      const fromPath = path.join(originGitFilePath, path)
-      const toPath = path.join(syncGitFilePath, path)
+    .filter((filePath) => !passFileNames.includes(filePath))
+    .forEach((filePath) => {
+      const fromPath = path.join(originGitFilePath, filePath)
+      const toPath = path.join(syncGitFilePath, filePath)
       // console.log('copy', fromPath, 'to', toPath)
       fs.copySync(fromPath, toPath)
     })
