@@ -6,6 +6,7 @@
   "main": "index.js",
   "scripts": {
     "test": "node ./test/index.js",
+    "test2": "node ./test/runAfterConflict.js",
     "lint:eslint": "eslint --fix",
     "lint:prettier": "prettier --write --loglevel warn"
   },
