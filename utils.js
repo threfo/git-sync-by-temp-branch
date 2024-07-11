@@ -69,7 +69,7 @@ const findLastSyncCommitId = (logs, matchMsg) => {
   const log = logs.find(({ message }) => message.includes(matchMsg))
   const { message } = log || {}
   const list = message.split('\n')
-  const lastSyncCommit = list.find((item) => item.startsWith('CommitId: ')) || ''
+  const lastSyncCommit = list.find((item) => item.trim().startsWith('CommitId: ')) || ''
   let lastSyncCommitId = lastSyncCommit.replace('CommitId: ', '')
 
   console.log(chalk.bgGreen('findLastSyncDate lastSyncCommitId', lastSyncCommitId))
