@@ -114,18 +114,35 @@ async function run({
     syncGitFilePath,
   })
 
-  console.log(chalk.bold(chalk.green(`${originGitFilePath} merge到 ${fromBranch} ${mergeMsg}`)))
-  await gitMerge(originGitFilePath, fromBranch, `${mergeMsg} ${fromBranch} to ${targetBranch}`)
+  console.log(chalk.bold(chalk.green(`${fromBranch} merge 到 ${originGitFilePath} ${mergeMsg}`)))
+  let mergePass = false
+  try {
+    await gitMerge(originGitFilePath, fromBranch, `${mergeMsg} ${fromBranch} to ${tempBranch}`)
+    mergePass = true
+  } catch (e) {
+    console.log(e)
+    console.log(chalk.bold(chalk.red(`${originGitFilePath} merge 到 ${fromBranch} 失败`)))
 
-  await mergeAfter({
-    targetBranch, // 目标仓库的分支
-    commitBeforeCommand,
-    tempBranch, // 临时分支
-    commitMsg, // commit message
-    originGitFilePath,
-    syncGitFilePath,
-    fromBranch,
-  })
+    console.log(
+      chalk.bold(
+        chalk.yellow(
+          `请到 ${originGitFilePath} 手动解决冲突，然后再执行 实现了 originGitFilePath 的命令`,
+        ),
+      ),
+    )
+  }
+
+  if (mergePass) {
+    await mergeAfter({
+      targetBranch, // 目标仓库的分支
+      commitBeforeCommand,
+      tempBranch, // 临时分支
+      commitMsg, // commit message
+      originGitFilePath,
+      syncGitFilePath,
+      fromBranch,
+    })
+  }
 }
 
 async function asyncAfterMergeConflict(props) {
