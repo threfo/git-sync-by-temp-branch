@@ -100,7 +100,14 @@ export const getCommitMsg = async (originGitFilePath, syncGitFilePath, matchMsg)
     // console.log(chalk.red('lastIndex', lastIndex))
     const needCommitLogs = originGitLogs.slice(0, lastIndex)
 
-    msgArr = needCommitLogs.map(({ message }) => message)
+    msgArr = needCommitLogs
+      .map(({ message }) => message)
+      .join('\n')
+      .trim()
+      .split('\n')
+
+    // 把messageLines内重复的字符串去掉
+    msgArr = Array.from(new Set(msgArr))
 
     // console.log(chalk.bgRed('msg', msgArr.join('\n')))
   }
