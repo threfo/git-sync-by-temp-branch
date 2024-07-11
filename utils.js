@@ -78,7 +78,7 @@ const findLastSyncCommitId = (logs, matchMsg) => {
 
 export const getCommitMsg = async (originGitFilePath, syncGitFilePath, matchMsg) => {
   const originGitLogs = await getGitLog(originGitFilePath)
-  console.log(chalk.bgGreen('originGitLogs', JSON.stringify(originGitLogs)))
+  // console.log(chalk.bgGreen('originGitLogs', JSON.stringify(originGitLogs)))
 
   const syncGitLogs = await getGitLog(syncGitFilePath)
 
