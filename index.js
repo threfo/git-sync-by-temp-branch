@@ -26,9 +26,9 @@ async function checkOutFileToTempAndCopySyncFileToTemp({
   syncGitFilePath,
 }) {
   // 1
-  console.log(chalk.bold(chalk.green(`删除${originGitFilePath}的文件`)))
+  console.log(chalk.bold(chalk.bgYellow(`删除${originGitFilePath}的文件`)))
   removeSyncGitOldFile(originGitFilePath, passFileNames)
-  console.log(chalk.bold(chalk.green(`从${syncGitFilePath}复制文件到${originGitFilePath}`)))
+  console.log(chalk.bold(chalk.bgBlue(`从${syncGitFilePath}复制文件到${originGitFilePath}`)))
   copyFile(syncGitFilePath, originGitFilePath, passFileNames)
   if (Array.isArray(commitBeforeCommand)) {
     commitBeforeCommand.forEach((command) => {
@@ -60,11 +60,11 @@ async function mergeAfter({
     syncGitFilePath,
     `${commitMsg} ${fromBranch} to ${targetBranch}`,
   )
-  console.log(chalk.bold(chalk.red(`${newCommitMsg}`)))
+  // console.log(chalk.bold(chalk.red(`${newCommitMsg}`)))
 
-  console.log(chalk.bold(chalk.green(`删除${syncGitFilePath}的文件`)))
+  console.log(chalk.bold(chalk.bgYellow(`删除${syncGitFilePath}的文件`)))
   removeSyncGitOldFile(syncGitFilePath, passFileNames)
-  console.log(chalk.bold(chalk.green(`从${originGitFilePath}复制文件到${syncGitFilePath}`)))
+  console.log(chalk.bold(chalk.bgBlue(`从${originGitFilePath}复制文件到${syncGitFilePath}`)))
   copyFile(originGitFilePath, syncGitFilePath, passFileNames)
   if (Array.isArray(commitBeforeCommand)) {
     commitBeforeCommand.forEach((command) => {
@@ -72,11 +72,11 @@ async function mergeAfter({
     })
   }
   await gitAdd(syncGitFilePath)
-  console.log(chalk.bold(chalk.green(`${syncGitFilePath} commit ${newCommitMsg}`)))
+  console.log(chalk.bold(chalk.bgYellow(`${syncGitFilePath} commit ${newCommitMsg}`)))
   await gitCommit(syncGitFilePath, newCommitMsg)
-  console.log(chalk.bold(chalk.green(`push文件到${syncGitFilePath} 的 ${targetBranch}分支`)))
+  console.log(chalk.bold(chalk.bgBlue(`push文件到${syncGitFilePath} 的 ${targetBranch}分支`)))
   await gitPush(syncGitFilePath, targetBranch)
-  console.log(chalk.bold(chalk.green(`push文件到${originGitFilePath} 的 ${tempBranch}分支`)))
+  console.log(chalk.bold(chalk.bgBlue(`push文件到${originGitFilePath} 的 ${tempBranch}分支`)))
   await gitPush(originGitFilePath, tempBranch)
 
   console.log(chalk.bold(chalk.green('同步代码成功！')))
@@ -94,7 +94,7 @@ async function run({
   commitMsg = 'chore: sync', // commit message
   mergeMsg = 'chore: merge', // merge message
 }) {
-  console.log(chalk.bold(chalk.green('同步代码开始....')))
+  console.log(chalk.bold(chalk.green('同步代码开始...')))
 
   const syncPathExists = ensureSyncDir(syncPathName, basePath)
   const originGitFilePath = path.join(syncPathExists, 'origin')
