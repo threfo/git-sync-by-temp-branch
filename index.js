@@ -97,8 +97,8 @@ async function run({
   console.log(chalk.bold(chalk.green('同步代码开始....')))
 
   const syncPathExists = ensureSyncDir(syncPathName, basePath)
-  const originGitFilePath = `${syncPathExists}/origin`
-  const syncGitFilePath = `${syncPathExists}/sync`
+  const originGitFilePath = path.join(syncPathExists, 'origin')
+  const syncGitFilePath = path.join(syncPathExists, 'sync')
 
   await checkoutOrigin(syncPathExists, originGitFilePath, originGit, tempBranch)
   await checkoutSync(syncPathExists, syncGitFilePath, targetGit, targetBranch)
@@ -159,9 +159,9 @@ async function asyncAfterMergeConflict(props) {
   console.log(chalk.bold(chalk.green('同步代码开始...')))
   const currentPath = path.resolve(basePath)
 
-  const syncPathExists = `${currentPath}/${syncPathName}`
-  const originGitFilePath = `${syncPathExists}/origin`
-  const syncGitFilePath = `${syncPathExists}/sync`
+  const syncPathExists = path.join(currentPath, syncPathName)
+  const originGitFilePath = path.join(syncPathExists, 'origin')
+  const syncGitFilePath = path.join(syncPathExists, 'sync')
 
   await mergeAfter({
     targetBranch, // 目标仓库的分支
