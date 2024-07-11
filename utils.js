@@ -82,12 +82,13 @@ export const getCommitMsg = async (originGitFilePath, syncGitFilePath, matchMsg)
 
   const syncGitLogs = await getGitLog(syncGitFilePath)
 
-  console.log(chalk.bgYellow('syncGitLogs', JSON.stringify(syncGitLogs)))
+  // console.log(chalk.bgYellow('syncGitLogs', JSON.stringify(syncGitLogs)))
   const lastSyncCommitId = findLastSyncCommitId(syncGitLogs, matchMsg)
 
   let msgArr = []
   if (lastSyncCommitId) {
     const lastIndex = originGitLogs.findIndex(({ commitId }) => commitId === lastSyncCommitId)
+    console.log(chalk.red('lastIndex', lastIndex))
     const needCommitLogs = originGitLogs.slice(0, lastIndex)
 
     msgArr = needCommitLogs.map(({ message }) => message)
