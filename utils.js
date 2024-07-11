@@ -21,7 +21,7 @@ export const gitPush = (cwd, branch = 'develop', origin = 'origin') =>
   execa('git', ['push', origin, `HEAD:${branch}`], { stdio: 'inherit', cwd })
 
 const gitLogToJson = (s) => {
-  // console.log('gitLogToJson', s)
+  console.log('gitLogToJson', s)
   const commits = s.split('commit ') // 分割每个commit
   const result = []
 
@@ -78,9 +78,10 @@ const findLastSyncCommitId = (logs, matchMsg) => {
 
 export const getCommitMsg = async (originGitFilePath, syncGitFilePath, matchMsg) => {
   const originGitLogs = await getGitLog(originGitFilePath)
+  console.log(chalk.bgGreen('originGitLogs', JSON.stringify(originGitLogs)))
+
   const syncGitLogs = await getGitLog(syncGitFilePath)
 
-  console.log(chalk.bgGreen('originGitLogs', JSON.stringify(originGitLogs)))
   console.log(chalk.bgYellow('syncGitLogs', JSON.stringify(syncGitLogs)))
   const lastSyncCommitId = findLastSyncCommitId(syncGitLogs, matchMsg)
 
