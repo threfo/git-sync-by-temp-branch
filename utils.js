@@ -42,7 +42,13 @@ const gitLogToJson = (s) => {
     })
 
     const dateIndex = otherLines.findIndex((line) => line.startsWith('Date: '))
-    const messageLines = otherLines.slice(dateIndex + 1)
+    let messageLines = otherLines.slice(dateIndex + 1)
+
+    messageLines = messageLines
+      .join('\n')
+      .trim()
+      .split('\n')
+      .filter((i) => !i.trim().startsWith('Merge '))
 
     commitObj.message = messageLines.join('\n').trim()
     // console.log(i, 'commitObj', JSON.stringify(commitObj))
