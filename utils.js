@@ -113,7 +113,7 @@ export const checkoutSync = async (syncPathExists, syncGitFilePath, gitPath, bra
 export const ensureSyncDir = (syncPathName, basePath) => {
   const currentPath = path.resolve(basePath)
 
-  const syncPathExists = `${currentPath}/${syncPathName}`
+  const syncPathExists = path.join(currentPath, syncPathName)
   const isSyncPathExists = fs.existsSync(syncPathExists)
 
   if (isSyncPathExists) {
@@ -138,7 +138,7 @@ export const removeSyncGitOldFile = (syncGitFilePath, passFileNames) => {
   dirNames
     .filter((path) => !passFileNames.includes(path))
     .forEach((path) => {
-      const removePath = `${syncGitFilePath}/${path}`
+      const removePath = path.join(syncGitFilePath, path)
       // console.log('remove', removePath)
       fs.removeSync(removePath)
     })
@@ -150,8 +150,8 @@ export const copyFile = (originGitFilePath, syncGitFilePath, passFileNames) => {
   dirNames
     .filter((path) => !passFileNames.includes(path))
     .forEach((path) => {
-      const fromPath = `${originGitFilePath}/${path}`
-      const toPath = `${syncGitFilePath}/${path}`
+      const fromPath = path.join(originGitFilePath, path)
+      const toPath = path.join(syncGitFilePath, path)
       // console.log('copy', fromPath, 'to', toPath)
       fs.copySync(fromPath, toPath)
     })
