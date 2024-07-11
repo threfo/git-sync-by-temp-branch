@@ -65,11 +65,15 @@ export const getGitLog = async (cwd) => {
   return list
 }
 
-const findLastSyncDate = (logs, matchMsg) => {
+const findLastSyncCommitId = (logs, matchMsg) => {
   const log = logs.find(({ message }) => message.includes(matchMsg))
-  const { date } = log || {}
-  console.log(chalk.bgGreen('findLastSyncDate date', date))
-  return date
+  const { message } = log || {}
+  const list = message.split('\n')
+  const lastSyncCommit = list.find((item) => item.startsWith('CommitId: ')) || ''
+  let lastSyncCommitId = lastSyncCommit.replace('CommitId: ', '')
+
+  console.log(chalk.bgGreen('findLastSyncDate lastSyncCommitId', lastSyncCommitId))
+  return lastSyncCommitId
 }
 
 export const getCommitMsg = async (originGitFilePath, syncGitFilePath, matchMsg) => {
@@ -78,25 +82,21 @@ export const getCommitMsg = async (originGitFilePath, syncGitFilePath, matchMsg)
 
   console.log(chalk.bgGreen('originGitLogs', JSON.stringify(originGitLogs)))
   console.log(chalk.bgYellow('syncGitLogs', JSON.stringify(syncGitLogs)))
-  const lastSyncDate = findLastSyncDate(syncGitLogs, matchMsg)
+  const lastSyncCommitId = findLastSyncCommitId(syncGitLogs, matchMsg)
 
   let msg = ''
-  if (lastSyncDate) {
-    msg = originGitLogs
-      .filter(({ date, message }) => {
-        console.log(date, ': ', message)
-        console.log(
-          'date',
-          date,
-          'lastSyncDate',
-          lastSyncDate,
-          'date.getTime() > lastSyncDate.getTime()',
-          date.getTime() > lastSyncDate.getTime(),
-        )
-        return date.getTime() > lastSyncDate.getTime()
-      })
-      .map(({ message }) => message)
-      .join('\n')
+  if (lastSyncCommitId) {
+    const lastIndex = originGitLogs.findIndex(({ commitId }) => commitId === lastSyncCommitId)
+    const needCommitLogs = originGitLogs.slice(0, lastIndex)
+    const [thisTimeCommit] = needCommitLogs
+    const { commitId: thisTimeCommitId } = thisTimeCommit || {}
+
+    const msgArr = [
+      `CommitId: ${thisTimeCommitId}`,
+      ...needCommitLogs.map(({ message }) => message),
+    ]
+
+    msg = msgArr.join('\n')
     console.log(chalk.bgRed('msg', msg))
   }
 
