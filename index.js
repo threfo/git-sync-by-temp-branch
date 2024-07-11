@@ -87,7 +87,7 @@ async function run({
   commitMsg = 'chore: sync', // commit message
   mergeMsg = 'chore: merge', // merge message
 }) {
-  console.log(chalk.bold(chalk.green('同步代码开始....')))
+  console.log(chalk.bold(chalk.green('同步代码开始...')))
 
   const syncPathExists = ensureSyncDir(syncPathName, basePath)
   const originGitFilePath = `${syncPathExists}/origin`
