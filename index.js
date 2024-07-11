@@ -156,7 +156,7 @@ async function asyncAfterMergeConflict(props) {
     commitMsg = 'chore: sync',
   } = getParamsByPropsOrArgs(props) || {}
 
-  console.log(chalk.bold(chalk.green('同步代码开始...')))
+  console.log(chalk.bold(chalk.green('同步代码开始...。')))
   const currentPath = path.resolve(basePath)
 
   const syncPathExists = path.join(currentPath, syncPathName)
