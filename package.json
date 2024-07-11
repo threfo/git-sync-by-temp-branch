@@ -1,5 +1,5 @@
 {
-  "name": "git-sync-to-other-git-by-temp",
+  "name": "@belloai/git-sync",
   "version": "1.0.7",
   "type": "module",
   "description": "",
