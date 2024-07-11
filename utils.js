@@ -85,26 +85,21 @@ export const getCommitMsg = async (originGitFilePath, syncGitFilePath, matchMsg)
   console.log(chalk.bgYellow('syncGitLogs', JSON.stringify(syncGitLogs)))
   const lastSyncCommitId = findLastSyncCommitId(syncGitLogs, matchMsg)
 
-  let msg = ''
+  let msgArr = []
   if (lastSyncCommitId) {
     const lastIndex = originGitLogs.findIndex(({ commitId }) => commitId === lastSyncCommitId)
     const needCommitLogs = originGitLogs.slice(0, lastIndex)
-    const [thisTimeCommit] = needCommitLogs
-    const { commitId: thisTimeCommitId } = thisTimeCommit || {}
 
-    const msgArr = [
-      `CommitId: ${thisTimeCommitId}`,
-      ...needCommitLogs.map(({ message }) => message),
-    ]
+    msgArr = needCommitLogs.map(({ message }) => message)
 
-    msg = msgArr.join('\n')
-    console.log(chalk.bgRed('msg', msg))
+    console.log(chalk.bgRed('msg', msgArr.join('\n')))
   }
 
-  if (msg) {
-    return [matchMsg, '\n', msg].join('\n')
-  }
-  return matchMsg
+  const [thisTimeCommit] = originGitLogs
+  const { commitId: thisTimeCommitId } = thisTimeCommit || {}
+  const thisTimeMsg = `CommitId: ${thisTimeCommitId}`
+
+  return [matchMsg, '', thisTimeMsg, ...msgArr].join('\n')
 }
 
 export const checkoutSync = async (syncPathExists, syncGitFilePath, gitPath, branchName) => {
