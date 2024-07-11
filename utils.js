@@ -21,7 +21,7 @@ export const gitPush = (cwd, branch = 'develop', origin = 'origin') =>
   execa('git', ['push', origin, `HEAD:${branch}`], { stdio: 'inherit', cwd })
 
 const gitLogToJson = (s) => {
-  // console.log('gitLogToJson', s)
+  console.log('gitLogToJson', s)
   const commits = s.split('commit ') // 分割每个commit
   const result = []
 
@@ -72,7 +72,7 @@ const findLastSyncCommitId = (logs, matchMsg) => {
   const lastSyncCommit = list.find((item) => item.trim().startsWith('CommitId: ')) || ''
   let lastSyncCommitId = lastSyncCommit.replace('CommitId: ', '')
 
-  // console.log(chalk.bgGreen('findLastSyncDate lastSyncCommitId', lastSyncCommitId))
+  console.log(chalk.bgGreen('findLastSyncDate lastSyncCommitId', lastSyncCommitId))
   return lastSyncCommitId.trim()
 }
 
@@ -88,12 +88,12 @@ export const getCommitMsg = async (originGitFilePath, syncGitFilePath, matchMsg)
   let msgArr = []
   if (lastSyncCommitId) {
     const lastIndex = originGitLogs.findIndex(({ commitId }) => commitId === lastSyncCommitId)
-    // console.log(chalk.red('lastIndex', lastIndex))
+    console.log(chalk.red('lastIndex', lastIndex))
     const needCommitLogs = originGitLogs.slice(0, lastIndex)
 
     msgArr = needCommitLogs.map(({ message }) => message)
 
-    // console.log(chalk.bgRed('msg', msgArr.join('\n')))
+    console.log(chalk.bgRed('msg', msgArr.join('\n')))
   }
 
   const [thisTimeCommit] = originGitLogs
