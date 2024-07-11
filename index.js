@@ -22,7 +22,6 @@ async function checkOutFileToTempAndCopySyncFileToTemp({
   targetBranch, // 目标仓库的分支
   commitBeforeCommand,
   tempBranch = '', // 临时分支
-  commitMsg = 'chore: sync', // commit message
   originGitFilePath,
   syncGitFilePath,
 }) {
@@ -37,9 +36,9 @@ async function checkOutFileToTempAndCopySyncFileToTemp({
     })
   }
   if (isGitDirty(originGitFilePath)) {
-    console.log(chalk.bold(chalk.green(`${tempBranch} 代码已同步到 ${targetBranch}`)))
+    console.log(chalk.bold(chalk.green(`${targetBranch} 代码已同步到 ${tempBranch}`)))
     await gitAdd(originGitFilePath)
-
+    const commitMsg = `chore: sync ${targetBranch} to ${tempBranch}`
     console.log(chalk.bold(chalk.green(`${originGitFilePath} commit ${commitMsg}`)))
     await gitCommit(originGitFilePath, commitMsg)
   } else {
@@ -55,6 +54,9 @@ async function mergeAfter({
   originGitFilePath,
   syncGitFilePath,
 }) {
+  const newCommitMsg = await getCommitMsg(originGitFilePath, syncGitFilePath, commitMsg)
+  console.log(chalk.bold(chalk.red(`${newCommitMsg}`)))
+
   console.log(chalk.bold(chalk.green(`删除${syncGitFilePath}的文件`)))
   removeSyncGitOldFile(syncGitFilePath, passFileNames)
   console.log(chalk.bold(chalk.green(`从${originGitFilePath}复制文件到${syncGitFilePath}`)))
@@ -65,8 +67,8 @@ async function mergeAfter({
     })
   }
   await gitAdd(syncGitFilePath)
-  console.log(chalk.bold(chalk.green(`${syncGitFilePath} commit ${commitMsg}`)))
-  await gitCommit(syncGitFilePath, commitMsg)
+  console.log(chalk.bold(chalk.green(`${syncGitFilePath} commit ${newCommitMsg}`)))
+  await gitCommit(syncGitFilePath, newCommitMsg)
   console.log(chalk.bold(chalk.green(`push文件到${syncGitFilePath} 的 ${targetBranch}分支`)))
   await gitPush(syncGitFilePath, targetBranch)
   console.log(chalk.bold(chalk.green(`push文件到${originGitFilePath} 的 ${tempBranch}分支`)))
@@ -96,20 +98,12 @@ async function run({
   await checkoutOrigin(syncPathExists, originGitFilePath, originGit, tempBranch)
   await checkoutSync(syncPathExists, syncGitFilePath, targetGit, targetBranch)
 
-  const newCommitMsg = await getCommitMsg(
-    originGitFilePath,
-    syncGitFilePath,
-    `${commitMsg} ${fromBranch} to ${targetBranch}`,
-  )
-  console.log(chalk.bold(chalk.red(`${newCommitMsg}`)))
-
   await checkOutFileToTempAndCopySyncFileToTemp({
     originGit,
     targetGit,
     targetBranch,
     commitBeforeCommand,
     tempBranch,
-    commitMsg: newCommitMsg,
     syncPathExists,
     originGitFilePath,
     syncGitFilePath,
@@ -122,7 +116,7 @@ async function run({
     targetBranch, // 目标仓库的分支
     commitBeforeCommand,
     tempBranch, // 临时分支
-    commitMsg: newCommitMsg, // commit message
+    commitMsg: `${commitMsg} ${fromBranch} to ${targetBranch}`, // commit message
     originGitFilePath,
     syncGitFilePath,
   })
