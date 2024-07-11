@@ -50,6 +50,9 @@ const gitLogToJson = (s) => {
       .split('\n')
       .filter((i) => !i.trim().startsWith('Merge '))
 
+    // 把messageLines内重复的字符串去掉
+    messageLines = Array.from(new Set(messageLines))
+
     commitObj.message = messageLines.join('\n').trim()
     // console.log(i, 'commitObj', JSON.stringify(commitObj))
     result.push(commitObj)
