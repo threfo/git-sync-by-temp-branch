@@ -73,7 +73,7 @@ const findLastSyncCommitId = (logs, matchMsg) => {
   let lastSyncCommitId = lastSyncCommit.replace('CommitId: ', '')
 
   console.log(chalk.bgGreen('findLastSyncDate lastSyncCommitId', lastSyncCommitId))
-  return lastSyncCommitId
+  return lastSyncCommitId.trim()
 }
 
 export const getCommitMsg = async (originGitFilePath, syncGitFilePath, matchMsg) => {
